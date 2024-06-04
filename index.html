@@ -69,40 +69,168 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button id="logBtn">Console Log</button>
+      <button id="errorBtn">Console Error</button>
+      <button id="countBtn">Console Count</button>
+      <button id="warnBtn">Console Warn</button>
+      <button id="assertBtn">Console Assert</button>
+      <button id="clearBtn">Console Clear</button>
+      <button id="dirBtn">Console Dir</button>
+      <button id="dirxmlBtn">Console dirxml</button>
+      <button id="groupStartBtn">Console Group Start</button>
+      <button id="groupEndBtn">Console Group End</button>
+      <button id="tableBtn">Console Table</button>
+      <button id="startTimerBtn">Start Timer</button>
+      <button id="endTimerBtn">End Timer</button>
+      <button id="traceBtn">Console Trace</button>
+      <button id="globalErrorBtn">Trigger a Global Error</button>
     </section>
   </main>
 
   <script>
-    let form = document.querySelector('form');
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+    document.addEventListener('DOMContentLoaded', () => {
+
+      class ValidationError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "ValidationError";
+        }
+      }
+
+      // Global error handler
+      window.onerror = function (message, source, lineno, colno, error) {
+        console.error('Global error caught:', { message, source, lineno, colno, error });
+        return true; // Prevents the default handling of the error
+      };
+
+      let form = document.querySelector('form');
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        let output = document.querySelector('output');
+        let firstNum = parseFloat(document.querySelector('#first-num').value);
+        let secondNum = parseFloat(document.querySelector('#second-num').value);
+        let operator = document.querySelector('#operator').value;
+
+        try {
+          if (isNaN(firstNum) || isNaN(secondNum)) {
+            throw new ValidationError('Input is not a number');
+          }
+          if (operator === '/' && secondNum === 0) {
+            throw new ValidationError('Cannot divide by zero');
+          }
+          output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+        } catch (error) {
+          if (error instanceof ValidationError) {
+            console.error('ValidationError occurred:', error);
+            output.innerHTML = 'Validation Error: ' + error.message;
+          } else {
+            console.error('Unknown error occurred:', error);
+            output.innerHTML = 'Error: ' + error.message;
+          }
+        } finally {
+          console.log('Calculation attempted with', { firstNum, secondNum, operator });
+        }
+      });
+
+      // Function to get input values
+      function getInputValues() {
+        let firstNum = document.querySelector('#first-num').value;
+        let secondNum = document.querySelector('#second-num').value;
+        let operator = document.querySelector('#operator').value;
+        return { firstNum, secondNum, operator };
+      }
+
+      // Console Log
+      document.getElementById('logBtn').addEventListener('click', () => {
+        const data = getInputValues();
+        console.log('Console Log Demo:', data);
+      });
+
+      // Console Error
+      document.getElementById('errorBtn').addEventListener('click', () => {
+        const data = getInputValues();
+        console.error('Console Error Demo:', data);
+      });
+
+      // Console Count
+      document.getElementById('countBtn').addEventListener('click', () => {
+        console.count('Count Button Clicked');
+      });
+
+      // Console Warn
+      document.getElementById('warnBtn').addEventListener('click', () => {
+        const data = getInputValues();
+        console.warn('Console Warn Demo:', data);
+      });
+
+      // Console Assert
+      document.getElementById('assertBtn').addEventListener('click', () => {
+        const data = getInputValues();
+        console.assert(false, 'Console Assert Demo: This is an assertion failure', data);
+      });
+
+      // Console Clear
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        console.clear();
+      });
+
+      // Console Dir
+      document.getElementById('dirBtn').addEventListener('click', () => {
+        console.dir(document.body);
+      });
+
+      // Console DirXML
+      document.getElementById('dirxmlBtn').addEventListener('click', () => {
+        console.dirxml(document);
+      });
+
+      // Console Group Start
+      document.getElementById('groupStartBtn').addEventListener('click', () => {
+        console.group('Console Group Start');
+      });
+
+      // Console Group End
+      document.getElementById('groupEndBtn').addEventListener('click', () => {
+        console.groupEnd();
+      });
+
+      // Console Table
+      document.getElementById('tableBtn').addEventListener('click', () => {
+        const data = [getInputValues()];
+        console.table(data);
+      });
+
+      // Start Timer
+      document.getElementById('startTimerBtn').addEventListener('click', () => {
+        console.time('Timer');
+      });
+
+      // End Timer
+      document.getElementById('endTimerBtn').addEventListener('click', () => {
+        console.timeEnd('Timer');
+      });
+
+      // Console Trace
+      document.getElementById('traceBtn').addEventListener('click', () => {
+        console.trace('Console Trace Demo');
+      });
+
+      // Trigger a Global Error
+      document.getElementById('globalErrorBtn').addEventListener('click', () => {
+        undefinedFunction();
+      });
+
+      // Trigger a Specific Error
+      document.getElementById('specificErrorBtn').addEventListener('click', () => {
+        try {
+          let obj = {};
+          console.log(obj.nonExistentProperty.length); // This will trigger an error
+        } catch (error) {
+          console.error('Specific Error occurred:', error);
+          alert('Specific Error: ' + error.message);
+        }
+      });
     });
-
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-
-    // Start your code here
-    // You may move this JS to another file if you wish
   </script>
 </body>
-
 </html>
