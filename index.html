@@ -105,20 +105,14 @@
         }
       }
 
-      // Global error handler
-      window.onerror = function (message, source, lineno, colno, error) {
-        console.error('Global error caught:', { message, source, lineno, colno, error });
-        return true; // Prevents the default handling of the error
-      };
-
       let form = document.querySelector('form');
       form.addEventListener('submit', e => {
         e.preventDefault();
         let output = document.querySelector('output');
-        let firstNum = parseFloat(document.querySelector('#first-num').value);
-        let secondNum = parseFloat(document.querySelector('#second-num').value);
+        let firstNum = document.querySelector('#first-num').value;
+        let secondNum = document.querySelector('#second-num').value;
         let operator = document.querySelector('#operator').value;
-
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
         try {
           if (isNaN(firstNum) || isNaN(secondNum)) {
             throw new ValidationError('Input is not a number');
@@ -141,6 +135,11 @@
           console.log('Calculation attempted with', { firstNum, secondNum, operator });
         }
       });
+
+      window.onerror = function (message, source, lineno, colno, error) {
+        console.error('Global error caught:', { message, source, lineno, colno, error });
+        return true;
+      };
 
       // Function to get input values
       function getInputValues() {
