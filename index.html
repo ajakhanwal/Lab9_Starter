@@ -105,6 +105,27 @@
         }
       }
 
+      function validateAndCalculate(firstNum, secondNum, outputElement) {
+        try {
+          if (!isValidNumber(firstNum)) {
+            throw new ValidationError('First input is not a valid number');
+          }
+          if (!isValidNumber(secondNum)) {
+            throw new ValidationError('Second input is not a valid number');
+          }
+          outputElement.innerHTML = `First Number: ${firstNum}, Second Number: ${secondNum}`;
+        } 
+        catch (error) {
+          if (error instanceof ValidationError) {
+            console.error('ValidationError occurred:', error);
+            outputElement.innerHTML = 'Validation Error: ' + error.message;
+          } else {
+            console.error('Unknown error occurred:', error);
+            outputElement.innerHTML = 'Error: ' + error.message;
+          }
+        }
+      }
+
       let form = document.querySelector('form');
       form.addEventListener('submit', e => {
         e.preventDefault();
@@ -113,33 +134,8 @@
         let secondNum = document.querySelector('#second-num').value;
         let operator = document.querySelector('#operator').value;
         output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
-        try {
-          if (isNaN(firstNum) || isNaN(secondNum)) {
-            throw new ValidationError('Input is not a number');
-          }
-          if (operator === '/' && secondNum === 0) {
-            throw new ValidationError('Cannot divide by zero');
-          }
-          output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
-        } 
-        catch (error) {
-          if (error instanceof ValidationError) {
-            console.error('ValidationError occurred:', error);
-            output.innerHTML = 'Validation Error: ' + error.message;
-          } else {
-            console.error('Unknown error occurred:', error);
-            output.innerHTML = 'Error: ' + error.message;
-          }
-        } 
-        finally {
-          console.log('Calculation attempted with', { firstNum, secondNum, operator });
-        }
+        validateAndCalculate(firstNum, secondNum, output);
       });
-
-      window.onerror = function (message, source, lineno, colno, error) {
-        console.error('Global error caught:', { message, source, lineno, colno, error });
-        return true;
-      };
 
       // Function to get input values
       function getInputValues() {
@@ -226,18 +222,10 @@
 
       // Trigger a Global Error
       document.getElementById('globalErrorBtn').addEventListener('click', () => {
-        undefinedFunction();
-      });
-
-      // Trigger a Specific Error
-      document.getElementById('specificErrorBtn').addEventListener('click', () => {
-        try {
-          let obj = {};
-          console.log(obj.nonExistentProperty.length); // This will trigger an error
-        } catch (error) {
-          console.error('Specific Error occurred:', error);
-          alert('Specific Error: ' + error.message);
-        }
+          window.onerror = function (message, source, lineno, colno, error) {
+          console.error('Global error caught:', { message, source, lineno, colno, error });
+          return true;
+        };
       });
     });
   </script>
